@@ -1,0 +1,91 @@
+/* A drone overhead, filmed by a phone. The page is the sky; the dials sit on it like a camera app's. */
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #c3cdd4; }
+body { font: 500 16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; color: #16181b; -webkit-font-smoothing: antialiased; }
+.sh { --ink: #16181b; --tip: #c8322c; --pad: clamp(20px, 3.4vw, 48px); --mono: 400 10px/1.6 ui-monospace, "SF Mono", Menlo, monospace;
+  --stage: max(560px, 100svh); position: relative; height: 100svh; min-height: 560px; overflow: hidden;
+  /* the rendered sky's own colours, top to bottom, so the scene fades in over what is already there */
+  background: linear-gradient(180deg, #abb9c5, #b3bfca 35%, #c2ccd4 75%, #c8d0d7) 0 0 / 100% var(--stage) no-repeat, #c3cdd4; }
+.sh canvas, .sh-poster { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.sh canvas { opacity: 0; transition: opacity .6s; }
+.sh[data-gl="on"] canvas { opacity: 1; }
+.sh-poster { display: none; object-fit: cover; pointer-events: none; }
+.sh[data-gl="off"] .sh-poster { display: block; }
+.sh[data-gl="off"] canvas, .sh[data-gl="off"] .sh-dials { display: none; }
+
+/* the readout's progress down the frame, in slow motion */
+.sh-line { position: absolute; z-index: 2; left: 0; right: 0; top: 0; height: 2px; margin-top: -1px; background: #b9e4ff; box-shadow: 0 0 16px 3px #87cefa99; pointer-events: none; will-change: transform; }
+.sh-line[hidden] { display: none; }
+.sh-line span { position: absolute; right: var(--pad); bottom: 8px; font: var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+/* loading: the line reads down the empty sky until the drone is there */
+.sh[data-gl="loading"] .sh-line { display: block; animation: sh-read 2.2s cubic-bezier(.45, 0, .55, 1) infinite; }
+.sh[data-gl="loading"] .sh-line span { display: none; }
+@keyframes sh-read { from { transform: translate3d(0, 0, 0); opacity: 0; } 10%, 88% { opacity: 1; } to { transform: translate3d(0, var(--stage), 0); opacity: 0; } }
+
+.sh-head, .sh-dials, .sh-foot { position: absolute; z-index: 3; margin: 0; }
+.sh-head { left: var(--pad); top: max(40px, 9svh); max-width: min(380px, 30vw); }
+.sh-head h1 { margin: 0; font-size: clamp(22px, 2.2vw, 30px); font-weight: 650; line-height: 1.05; letter-spacing: -.03em; }
+.sh-head p { margin: 16px 0 0; font-size: clamp(15px, 1.15vw, 18px); letter-spacing: -.01em; text-wrap: pretty; }
+.sh-foot { right: var(--pad); bottom: max(32px, 5.5svh); font-size: 13px; }
+.sh-foot a { color: inherit; text-underline-offset: .2em; }
+
+/* the dials */
+.sh-dials { left: var(--pad); bottom: max(32px, 5.5svh); display: flex; align-items: flex-end; gap: 30px; }
+.dial { width: 210px; }
+.dial-head { display: flex; align-items: baseline; gap: 10px; min-height: 20px; margin: 0 0 6px; white-space: nowrap; }
+.dial-label { font: var(--mono); letter-spacing: .08em; text-transform: uppercase; color: rgb(22 24 27 / .62); }
+.dial-value { font: 500 13px/1 ui-monospace, "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }
+.dial-note { padding: 3px 6px 2px; border-radius: 3px; background: var(--ink); color: #eef1f2; font: 400 9px/1.2 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; }
+.dial-note[hidden] { display: none; }
+.dial-track { position: relative; height: 34px; overflow: hidden; cursor: ew-resize; touch-action: none; outline: none; border-radius: 3px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent); mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent); }
+.dial-track:focus-visible { -webkit-mask-image: none; mask-image: none; box-shadow: inset 0 0 0 2px var(--ink); }
+.dial-scale { position: absolute; left: 50%; top: 0; bottom: 0; transition: transform .12s cubic-bezier(.2, .7, .2, 1); }
+.dial[data-dragging] .dial-scale { transition: none; }
+.dial-tick { position: absolute; bottom: 6px; width: 1px; height: 7px; background: rgb(22 24 27 / .42); }
+.dial-tick-long { height: 13px; background: rgb(22 24 27 / .85); }
+.dial-mark { position: absolute; top: 5px; width: 5px; height: 5px; margin-left: -2px; border-radius: 50%; background: var(--ink); }
+.dial-needle { position: absolute; left: 50%; top: 3px; bottom: 3px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--tip); pointer-events: none; }
+.dial[data-disabled] { opacity: .4; }
+
+.sh-buttons { display: flex; gap: 8px; padding-bottom: 4px; }
+.sh-button { padding: 9px 13px 8px; border: 0; border-radius: 999px; background: rgb(255 255 255 / .82); color: var(--ink); font: var(--mono); line-height: 1.2; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; transition: background .2s, color .2s, opacity .2s; white-space: nowrap; touch-action: manipulation; }
+.sh-button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.sh-button:disabled { opacity: .4; cursor: default; }
+.sh-button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+@media (hover: hover) { .sh-button:not(:disabled):not([aria-pressed="true"]):hover { background: #fff; } }
+
+@media (max-width: 1100px) and (min-width: 701px) { .dial { width: 180px; } .sh-foot { bottom: auto; top: max(40px, 9svh); } }
+
+@media (max-width: 700px) {
+  .sh { --stage: max(480px, 100svh); height: auto; min-height: 0; padding-top: var(--stage); }
+  .sh canvas, .sh-poster { height: var(--stage); bottom: auto; }
+  .sh-head { left: 22px; right: 22px; top: 32px; max-width: none; }
+  .sh-head p { margin-top: 12px; font-size: 15px; }
+  .sh-dials { left: 22px; right: 22px; bottom: auto; top: calc(var(--stage) - 242px); flex-direction: column; align-items: stretch; gap: 10px; }
+  .dial { width: auto; }
+  .dial-head { margin-bottom: 2px; }
+  .dial-track { height: 30px; }
+  .sh-buttons { padding: 4px 0 0; }
+  .sh-line span { right: 22px; }
+  .sh-foot { position: relative; right: auto; bottom: auto; padding: 24px 22px 36px; }
+}
+
+/* a short phone (an iPhone SE): the frame keeps the title and the dials, two to a row, and the paragraph goes below it,
+   so the drone still gets the middle of the screen and the buttons stay above Safari's toolbar */
+@media (max-width: 700px) and (max-height: 720px) {
+  .sh-head { display: contents; }
+  .sh-head h1 { position: absolute; z-index: 3; left: 22px; top: 28px; }
+  .sh-head p { margin: 0; padding: 26px 22px 0; font-size: 15px; }
+  .sh-dials { top: calc(var(--stage) - 166px); display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; }
+  .dial:first-child, .sh-buttons { grid-column: 1 / -1; }
+  .dial-head { min-height: 18px; }
+  .dial-track { height: 26px; }
+  .dial:not(:first-child) .dial-note { display: none; }
+  .sh-buttons { padding-top: 2px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sh canvas, .dial-scale, .sh-button { transition: none; }
+  .sh[data-gl="loading"] .sh-line { display: none; }
+}

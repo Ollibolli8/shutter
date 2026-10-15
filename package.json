@@ -1,0 +1,26 @@
+{
+  "name": "shutter",
+  "version": "1.0.0",
+  "description": "A drone filmed by a phone: the rolling shutter bends, breaks and stops its propellers, row by row. three.js and GLSL.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Oliver Kure Olsen (https://work.draindk.tech)",
+  "repository": "github:Ollibolli8/shutter",
+  "keywords": ["rolling-shutter", "webgl", "threejs", "glsl", "shader", "camera", "drone", "propeller", "motion-blur"],
+  "main": "src/core.ts",
+  "files": ["src"],
+  "scripts": {
+    "build": "esbuild demo/main.ts --bundle --minify --format=esm --target=es2022 --outdir=docs && cp demo/index.html demo/public/* docs/ && mkdir -p docs/draco && cp node_modules/three/examples/jsm/libs/draco/gltf/draco_decoder.wasm node_modules/three/examples/jsm/libs/draco/gltf/draco_wasm_wrapper.js docs/draco/",
+    "dev": "npm run build && npx --yes serve docs",
+    "check": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "three": ">=0.180.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.185.4",
+    "esbuild": "^0.28.2",
+    "three": "^0.186.0",
+    "typescript": "^5.9.0"
+  }
+}

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Shutter · a drone filmed by a phone</title>
+  <meta name="description" content="A phone's sensor reads one row at a time. Spin up a drone's rotors and watch the camera bend, split and stop them. three.js and GLSL.">
+  <meta name="theme-color" content="#c3cdd4">
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+  <main class="sh" data-gl="loading">
+    <canvas aria-hidden="true"></canvas>
+    <picture>
+      <source media="(max-aspect-ratio: 10/11)" srcset="poster-tall.webp">
+      <img class="sh-poster" src="poster.webp" loading="lazy" alt="A drone seen from below against an overcast sky, its propellers bent into curves by a phone camera's rolling shutter.">
+    </picture>
+    <div class="sh-line" hidden aria-hidden="true"><span>Readout</span></div>
+    <header class="sh-head">
+      <h1>Shutter</h1>
+      <p>A phone reads its sensor one row at a time, top to bottom, so each row sees the propellers a moment later than the row above. That is why phones film rotors bent, broken and standing still.</p>
+    </header>
+    <div class="sh-dials" role="group" aria-label="Camera">
+      <div class="sh-buttons">
+        <button type="button" class="sh-button" aria-pressed="false">Slow motion</button>
+        <button type="button" class="sh-button" aria-pressed="false">Sound off</button>
+      </div>
+    </div>
+    <p class="sh-foot"><a href="https://github.com/Ollibolli8/shutter">Source</a> · <a href="https://work.draindk.tech/lab/shutter/">Oliver Kure Olsen</a></p>
+  </main>
+  <script type="module" src="main.js"></script>
+</body>
+</html>
