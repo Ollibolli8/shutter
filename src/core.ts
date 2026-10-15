@@ -271,7 +271,11 @@ export function createShutter(o: ShutterOptions): Shutter {
       outline.push(new THREE.Vector3(Math.cos(a) * R, r.mat.uniforms.uHeight.value as number, Math.sin(a) * R).applyMatrix4(r.node.matrixWorld).applyMatrix4(inv));
     }
     resize();
+    // compile the slow motion's outlines too: hidden, they'd be skipped, and the first switch to slow motion would build
+    // their program mid-flight (Safari stalls on it long enough to miss a tap)
+    for (const r of rotors) r.truth.visible = true;
     renderer.compileAsync(scene, camera).catch(() => {}).finally(() => {
+      for (const r of rotors) r.truth.visible = false;
       if (!alive) return;
       ready = true; dirty = true;
       o.onReady?.();
