@@ -512,6 +512,7 @@ export function createShutter(o: ShutterOptions): Shutter {
       skyMat.dispose();
       draco.dispose();
       renderer.dispose();
+      renderer.forceContextLoss();    // dispose() keeps the context until the canvas is collected
     },
   };
 }
