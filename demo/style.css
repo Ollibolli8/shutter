@@ -37,7 +37,7 @@ body { font: 500 16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; col
 .dial-value { font: 500 13px/1 ui-monospace, "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }
 .dial-note { padding: 3px 6px 2px; border-radius: 3px; background: var(--ink); color: #eef1f2; font: 400 9px/1.2 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; }
 .dial-note[hidden] { display: none; }
-.dial-track { position: relative; height: 34px; overflow: hidden; cursor: ew-resize; touch-action: none; outline: none; border-radius: 3px;
+.dial-track { position: relative; height: 34px; overflow: hidden; cursor: ew-resize; touch-action: none; -webkit-user-select: none; user-select: none; outline: none; border-radius: 3px;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent); mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent); }
 .dial-track:focus-visible { -webkit-mask-image: none; mask-image: none; box-shadow: inset 0 0 0 2px var(--ink); }
 .dial-scale { position: absolute; left: 50%; top: 0; bottom: 0; transition: transform .12s cubic-bezier(.2, .7, .2, 1); }
@@ -55,7 +55,16 @@ body { font: 500 16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; col
 .sh-button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 @media (hover: hover) { .sh-button:not(:disabled):not([aria-pressed="true"]):hover { background: #fff; } }
 
-@media (max-width: 1100px) and (min-width: 701px) { .dial { width: 180px; } .sh-foot { bottom: auto; top: max(40px, 9svh); } }
+/* a tablet, a narrow window (under 1200 px the row of dials and buttons runs into the footer, and the notes into the
+   next dial): the dials stack in a column as on a phone; held upright, the text runs wider over the drone */
+@media (max-width: 1199px) and (min-width: 701px) {
+  .sh-dials { flex-direction: column; align-items: stretch; gap: 10px; width: 300px; }
+  .dial { width: auto; }
+  .dial-head { margin-bottom: 2px; }
+  .dial-track { height: 30px; }
+  .sh-buttons { padding: 4px 0 0; }
+}
+@media (max-width: 1199px) and (min-width: 701px) and (max-aspect-ratio: 10/11) { .sh-head { max-width: 380px; } }
 
 @media (max-width: 700px) {
   .sh { --stage: max(480px, 100svh); height: auto; min-height: 0; padding-top: var(--stage); }

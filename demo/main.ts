@@ -43,7 +43,13 @@ function region(w: number, h: number): Region {
   const low = dials.getBoundingClientRect();
   const y = (px: number) => 1 - (2 * (px - c.top)) / h, x = (px: number) => -1 + (2 * (px - c.left)) / w;
   if (h > w * 1.1) return { x0: -0.86, x1: 0.86, y0: y(low.top - 18), y1: y(bottom + 14) };
-  return { x0: x(right + 40), x1: 0.92, y0: y(low.top - 18), y1: 0.8 };
+  const above: Region = { x0: x(right + 40), x1: 0.92, y0: y(low.top - 18), y1: 0.8 };
+  // a tablet held sideways: the dials stand in a column under the text, so the drone may take the sky right of both,
+  // down to the footer, where that gives it more room than the sky above the dials
+  const foot = root.querySelector(".sh-foot")!.getBoundingClientRect();
+  const beside: Region = { x0: x(Math.max(right, low.right) + 40), x1: 0.92, y0: Math.max(-0.9, y(foot.top - 18)), y1: 0.8 };
+  const room = (r: Region) => Math.min((r.x1 - r.x0) * w, (r.y1 - r.y0) * h);
+  return room(beside) > room(above) ? beside : above;
 }
 
 const coarse = matchMedia("(pointer: coarse)").matches;
