@@ -205,7 +205,7 @@ export function createShutter(o: ShutterOptions): Shutter {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(30, 1, 0.02, 60);
-  let alive = true, ready = false, still = !!o.still, dirty = true, raf = 0, prev = 0;
+  let alive = true, ready = false, still = !!o.still, dirty = true, raf = 0, prev = 0, nextRatio = 0;
 
   // ------------------------------------------------------------------------------------------ sky and light
   const skyMat = new THREE.ShaderMaterial({
@@ -458,6 +458,9 @@ export function createShutter(o: ShutterOptions): Shutter {
     const line = settings.slow && !still && readout > 0 ? Math.min(1, (T - tk) / readout) : null;
     // slow motion draws every frame, at 60 fps at most (a 120 Hz screen gets every other one)
     if (ready && (dirty || k !== shown || (line !== null && now - drawn > 1000 / 60 - 4))) {
+      // a new pixel ratio is set here, just before a draw: it clears the canvas, and set after one (by the page's frame
+      // guard, from onFrame) that frame showed blank
+      if (nextRatio) { renderer.setPixelRatio(nextRatio); nextRatio = 0; resize(); }
       dirty = false;
       shown = k;
       drawn = now;
@@ -483,7 +486,7 @@ export function createShutter(o: ShutterOptions): Shutter {
       o.onLine?.(line);
       o.onFrame?.(now, line !== null ? 1000 / 60 : 1000 * F);
     }
-    if (!still && ready) raf = requestAnimationFrame(draw);
+    if (!still && ready) raf ||= requestAnimationFrame(draw);       // (a kick from onFrame may have asked already)
   }
   function kick() { if (!raf && alive) raf = requestAnimationFrame(draw); }
   const onVisible = () => { prev = 0; if (!document.hidden) kick(); };
@@ -498,7 +501,7 @@ export function createShutter(o: ShutterOptions): Shutter {
       kick();
     },
     setStill(on) { still = on; dirty = true; prev = 0; kick(); },
-    setPixelRatio(dpr) { renderer.setPixelRatio(dpr); resize(); kick(); },
+    setPixelRatio(dpr) { nextRatio = dpr; dirty = true; kick(); },
     refit() { resize(); kick(); },
     dispose() {
       alive = false;
