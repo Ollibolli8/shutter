@@ -59,7 +59,9 @@ shutter.set({ rpm: 6300, readout: 0.02, exposure: 1 / 16000, slow: false });
 ```
 
 `region` places the drone (a box in -1..1 that its outline is fitted into), `materials` swaps in your own materials by
-name, `onLine` reports the readout's progress in slow motion, `onSpin` the rotors' speed as they spool.
+name, `onLine` reports the readout's progress in slow motion, `onSpin` the rotors' speed as they spool. `spool` sets
+how many seconds the motors take to settle on a new speed (0.2): a slow spool, from rest or down to it, walks the
+recording through its patterns as the speed passes them (the blades bend, split, stand still, turn backwards).
 
 ## Build the demo
 

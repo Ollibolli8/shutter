@@ -42,6 +42,9 @@ export type ShutterOptions = {
   onLine?: (row: number | null) => void;
   /** The rotors' actual speed as they spool towards the setting. */
   onSpin?: (rpm: number) => void;
+  /** Seconds a motor takes to settle on a new speed (0.2). A slow spool walks the recording through its patterns:
+   *  the blades bend, split, stand still and turn backwards on the way up or down. */
+  spool?: number;
 };
 export type Shutter = {
   renderer: THREE.WebGLRenderer;
@@ -206,6 +209,7 @@ export function createShutter(o: ShutterOptions): Shutter {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(30, 1, 0.02, 60);
   let alive = true, ready = false, still = !!o.still, dirty = true, raf = 0, prev = 0, nextRatio = 0;
+  const settle = (o.spool ?? 0.2) / 3;
 
   // ------------------------------------------------------------------------------------------ sky and light
   const skyMat = new THREE.ShaderMaterial({
@@ -444,9 +448,9 @@ export function createShutter(o: ShutterOptions): Shutter {
     prev = now;
     const rate = still ? 0 : settings.slow ? SLOW : 1;
     const step = dt * rate;
-    // spool: a motor reaches a new speed in about a fifth of a second
+    // spool: a motor reaches a new speed in about a fifth of a second (o.spool)
     const before = spin;
-    spin += (settings.rpm - spin) * (1 - Math.exp(-step / 0.07));
+    spin += (settings.rpm - spin) * (1 - Math.exp(-step / settle));
     if (still) spin = settings.rpm;
     if (Math.abs(spin - before) > 0.5) o.onSpin?.(spin);
     phase = (phase + spin / 60 * TAU * step) % TAU;
