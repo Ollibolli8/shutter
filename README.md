@@ -27,7 +27,8 @@ the loop), turns the normal forward to the blade's angle, and lights it with the
 body.
 
 **Time** is a camera's. The page shows the last frame the virtual camera recorded at 30 fps, so it draws only when
-there is a new one. **Slow motion** runs the scene 250 times slower and shows the readout in progress: rows above the
+there is a new one (each for the same number of screen refreshes: the count turns over a tenth of a frame early, so a
+frame boundary never sits on a refresh, where the clock's rounding would show it early or late). **Slow motion** runs the scene 250 times slower and shows the readout in progress: rows above the
 line hold the new frame, rows below it the last one, and the true blades are outlined so you can see what the sensor
 is missing.
 

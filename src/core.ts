@@ -457,7 +457,11 @@ export function createShutter(o: ShutterOptions): Shutter {
     T += step;
     const F = 1 / settings.fps;
     const readout = Math.min(settings.readout, F);
-    const k = Math.floor(T / F), tk = k * F;
+    // The camera's frame this moment falls in. In real time the count turns over a tenth of a frame early: on a 60 or
+    // 120 Hz screen a recorded frame lasts a whole number of refreshes, so its boundary lands exactly on one, and the
+    // clock's rounding (0.1 ms) put each new frame a refresh early or late: 17, 33 and 50 ms apart in turn at 60 Hz, a
+    // stutter (11 November). A tenth in, every frame is shown for the same two refreshes (four at 120 Hz).
+    const k = Math.floor(T / F + (settings.slow ? 0 : 0.1)), tk = k * F;
     // in real time the screen shows the last frame the camera recorded: draw only when there is a new one
     const line = settings.slow && !still && readout > 0 ? Math.min(1, (T - tk) / readout) : null;
     // slow motion draws every frame, at 60 fps at most (a 120 Hz screen gets every other one)
